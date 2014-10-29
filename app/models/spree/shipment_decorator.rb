@@ -25,7 +25,6 @@ Spree::Shipment.class_eval do
     rate = easypost_shipment.rates.find do |rate|
       rate.id == selected_easy_post_rate_id
     end
-    byebug
     
     easypost_shipment.buy(rate)
     if easypost_shipment.tracking_code.present?
