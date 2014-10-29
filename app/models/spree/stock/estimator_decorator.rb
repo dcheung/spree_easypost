@@ -1,7 +1,6 @@
 Spree::Stock::Estimator.class_eval do
   def shipping_rates(package)
     order = package.order
-
     from_address = process_address(package.stock_location)
     to_address = process_address(order.ship_address)
     parcel = build_parcel(package)
