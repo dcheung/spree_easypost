@@ -1,7 +1,7 @@
 Spree::Stock::Estimator.class_eval do
   def shipping_rates(package, frontend_only = true)
         rates = calculate_shipping_rates(package)
-        rates.select! { |rate| rate.shipping_method.frontend? } if frontend_only
+        #rates.select! { |rate| rate.shipping_method.frontend? } if frontend_only
         package.shipping_rates = rates
         rates = shipping_rates_via_easypost(package, frontend_only)
         
@@ -20,8 +20,7 @@ Spree::Stock::Estimator.class_eval do
     
     spree_shipping_rates = package.shipping_rates
     
-    spree_easypost_shipping_rates = []
-    
+    new_easypost_shipping_rates = []
     if rates.any?
       rates.each do |rate|
         found_match = false
@@ -31,13 +30,13 @@ Spree::Stock::Estimator.class_eval do
             spree_shipping_rate.easy_post_rate_id = rate.id            
             spree_shipping_rate.cost = rate.rate
             
-            spree_easypost_shipping_rates << spree_shipping_rate
+            #spree_easypost_shipping_rates << spree_shipping_rate
             found_match = true
           end
         end
-        if !found_match && !frontend_only
+        if !found_match
           #add the non-matching shipping rate from easypost to the backend but not front end
-          spree_easypost_shipping_rates << Spree::ShippingRate.new(
+          new_easypost_shipping_rates << Spree::ShippingRate.new(
             :name => "#{rate.carrier} #{rate.service}",
             :cost => rate.rate,
             :easy_post_shipment_id => rate.shipment_id,
@@ -46,27 +45,40 @@ Spree::Stock::Estimator.class_eval do
         end
       end
     end
+    #byebug
     #for all shipping rates, for which the corresponding rates were not found, use
     #the admin_name as the parcel size
     package.shipping_rates.each do |spree_shipping_rate|
-      if spree_shipping_rate.easy_post_rate_id.nil?
+      if spree_shipping_rate.easy_post_rate_id.nil? && spree_shipping_rate.shipping_method.admin_name.present?
         predefined_package_name = spree_shipping_rate.shipping_method.admin_name
         parcel = build_predefined_parcel(package, predefined_package_name)
         shipment = build_shipment(from_address, to_address, parcel)            
-        rates = shipment.rates
+        rates = shipment.rates        
         if rates.any?
+          updated_first = false
           rates.each do |rate|
-            spree_easypost_shipping_rates << Spree::ShippingRate.new(
-              :name => spree_shipping_rate.name,#"#{rate.carrier} #{rate.service} - #{predefined_package_name}",
-              :cost => rate.rate,
-              :easy_post_shipment_id => rate.shipment_id,
-              :easy_post_rate_id => rate.id
-            )
+            unless updated_first
+              spree_shipping_rate.easy_post_shipment_id = rate.shipment_id
+              spree_shipping_rate.easy_post_rate_id = rate.id            
+              spree_shipping_rate.cost = rate.rate
+              updated_first = true
+            else              
+              new_easypost_shipping_rates << Spree::ShippingRate.new(
+                :name => spree_shipping_rate.name,#"#{rate.carrier} #{rate.service} - #{predefined_package_name}",
+                :cost => rate.rate,
+                #shipping_method_id: spree_shipping_rate.shipping_method.id,
+                :easy_post_shipment_id => rate.shipment_id,
+                :easy_post_rate_id => rate.id
+              )
+            end
           end
         end
       end
     end
-    spree_easypost_shipping_rates
+    new_easypost_shipping_rates.each do |new_easypost_shipping_rate|
+      package.shipping_rates << new_easypost_shipping_rate
+    end
+    package.shipping_rates
   end
 
   private
