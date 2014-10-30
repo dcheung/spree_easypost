@@ -3,9 +3,9 @@ Spree::Shipment.class_eval do
 
   has_one :easypost_shipment_response, class_name: 'Spree::EasypostShipmentResponse'
   
-  def tracking_url
-    nil # TODO: Work out how to properly generate this
-  end
+#  def tracking_url
+#    nil # TODO: Work out how to properly generate this
+#  end
 
   private
 
@@ -22,6 +22,10 @@ Spree::Shipment.class_eval do
   end
 
   def buy_easypost_rate
+    if selected_easy_post_rate_id.nil? || selected_easy_post_rate_id < 1
+      #the desired shipping method is not available on easypost
+      return
+    end
     rate = easypost_shipment.rates.find do |rate|
       rate.id == selected_easy_post_rate_id
     end
