@@ -75,7 +75,7 @@ Spree::Stock::Estimator.class_eval do
             end
           end
 	rescue EasyPost::Error => e
-	  logger.error("Got error for: #{predefined_package_name}, #{e.message}\n#{e.backtrace.join("\n")}")
+	  puts "Got error for: #{predefined_package_name}, #{e.message}\n#{e.backtrace.join("\n")}"
 	end
       end
     end
