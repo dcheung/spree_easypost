@@ -98,12 +98,12 @@ Spree::Stock::Estimator.class_eval do
       :weight => total_weight
     )
   end
-  def build_predefined_parcel(package, package_name)
+  def build_predefined_parcel(package, predefined_package_name)
     total_weight = package.contents.sum do |item|
       item.quantity * item.variant.weight
     end 
     parcel = ::EasyPost::Parcel.create(
-     :predefined_package => 'FlatRatePaddedEnvelope',  :weight => total_weight
+     predefined_package: predefined_package_name,  weight: total_weight
     )    
   end
   
