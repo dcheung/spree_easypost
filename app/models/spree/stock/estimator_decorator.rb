@@ -51,28 +51,32 @@ Spree::Stock::Estimator.class_eval do
     package.shipping_rates.each do |spree_shipping_rate|
       if spree_shipping_rate.easy_post_rate_id.nil? && spree_shipping_rate.shipping_method.admin_name.present?
         predefined_package_name = spree_shipping_rate.shipping_method.admin_name
-        parcel = build_predefined_parcel(package, predefined_package_name)
-        shipment = build_shipment(from_address, to_address, parcel)            
-        rates = shipment.rates        
-        if rates.any?
-          updated_first = false
-          rates.each do |rate|
-            unless updated_first
-              spree_shipping_rate.easy_post_shipment_id = rate.shipment_id
-              spree_shipping_rate.easy_post_rate_id = rate.id            
-              spree_shipping_rate.cost = rate.rate
-              updated_first = true
-            else              
-              new_easypost_shipping_rates << Spree::ShippingRate.new(
-                :name => spree_shipping_rate.name,#"#{rate.carrier} #{rate.service} - #{predefined_package_name}",
-                :cost => rate.rate,
-                #shipping_method_id: spree_shipping_rate.shipping_method.id,
-                :easy_post_shipment_id => rate.shipment_id,
-                :easy_post_rate_id => rate.id
-              )
+	begin
+          parcel = build_predefined_parcel(package, predefined_package_name)
+          shipment = build_shipment(from_address, to_address, parcel)            
+          rates = shipment.rates        
+          if rates.any?
+            updated_first = false
+            rates.each do |rate|
+              unless updated_first
+                spree_shipping_rate.easy_post_shipment_id = rate.shipment_id
+                spree_shipping_rate.easy_post_rate_id = rate.id            
+                spree_shipping_rate.cost = rate.rate
+                updated_first = true
+              else              
+                new_easypost_shipping_rates << Spree::ShippingRate.new(
+                  :name => spree_shipping_rate.name,#"#{rate.carrier} #{rate.service} - #{predefined_package_name}",
+                  :cost => rate.rate,
+                  #shipping_method_id: spree_shipping_rate.shipping_method.id,
+                  :easy_post_shipment_id => rate.shipment_id,
+                  :easy_post_rate_id => rate.id
+                )
+              end
             end
           end
-        end
+	rescue EasyPost::Error => e
+	  logger.error("Got error for: #{predefined_package_name}, #{e.message}\n#{e.backtrace.join("\n")}")
+	end
       end
     end
     new_easypost_shipping_rates.each do |new_easypost_shipping_rate|
@@ -113,10 +117,10 @@ Spree::Stock::Estimator.class_eval do
   def build_predefined_parcel(package, predefined_package_name)
     total_weight = package.contents.sum do |item|
       item.quantity * item.variant.weight
-    end 
+    end
     parcel = ::EasyPost::Parcel.create(
      predefined_package: predefined_package_name,  weight: total_weight
-    )    
+    )
   end
   
   def build_shipment(from_address, to_address, parcel)
