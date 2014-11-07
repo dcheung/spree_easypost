@@ -51,7 +51,7 @@ Spree::Stock::Estimator.class_eval do
     package.shipping_rates.each do |spree_shipping_rate|
       if spree_shipping_rate.easy_post_rate_id.nil? && spree_shipping_rate.shipping_method.admin_name.present?
         predefined_package_name = spree_shipping_rate.shipping_method.admin_name
-	begin
+        begin
           parcel = build_predefined_parcel(package, predefined_package_name)
           shipment = build_shipment(from_address, to_address, parcel)            
           rates = shipment.rates        
@@ -74,9 +74,9 @@ Spree::Stock::Estimator.class_eval do
               end
             end
           end
-	rescue EasyPost::Error => e
-	  puts "Got error for: #{predefined_package_name}, #{e.message}\n#{e.backtrace.join("\n")}"
-	end
+        rescue EasyPost::Error => e
+          puts "Got error for: #{predefined_package_name}, #{e.message}\n#{e.backtrace.join("\n")}"
+        end
       end
     end
     new_easypost_shipping_rates.each do |new_easypost_shipping_rate|
