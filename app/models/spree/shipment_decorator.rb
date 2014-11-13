@@ -22,7 +22,7 @@ Spree::Shipment.class_eval do
   end
 
   def buy_easypost_rate
-    if selected_easy_post_rate_id.nil? || selected_easy_post_rate_id < 1
+    if selected_easy_post_rate_id.nil?
       #the desired shipping method is not available on easypost
       return
     end
