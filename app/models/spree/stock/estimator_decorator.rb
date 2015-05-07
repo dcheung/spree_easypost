@@ -1,12 +1,16 @@
 Spree::Stock::Estimator.class_eval do
   def shipping_rates(package, frontend_only = true)
-        rates = calculate_shipping_rates(package)
-        #rates.select! { |rate| rate.shipping_method.frontend? } if frontend_only
-        package.shipping_rates = rates
-        rates = shipping_rates_via_easypost(package, frontend_only)
-        
-        choose_default_shipping_rate(rates)
-        sort_shipping_rates(rates)
+    rates = calculate_shipping_rates(package)
+    unless rates.empty? || rates.nil?
+      #rates.select! { |rate| rate.shipping_method.frontend? } if frontend_only
+      package.shipping_rates = rates
+      rates = shipping_rates_via_easypost(package, frontend_only)
+
+      choose_default_shipping_rate(rates)
+      sort_shipping_rates(rates)
+    else
+      []
+    end
   end
   
   def shipping_rates_via_easypost(package, frontend_only = true)
@@ -19,7 +23,6 @@ Spree::Stock::Estimator.class_eval do
     rates = shipment.rates#.sort_by { |r| r.rate.to_i }
     
     spree_shipping_rates = package.shipping_rates
-    
     new_easypost_shipping_rates = []
     if rates.any?
       rates.each do |rate|
@@ -100,6 +103,7 @@ Spree::Stock::Estimator.class_eval do
     ep_address_attrs[:street2] = address.address2
     ep_address_attrs[:city] = address.city
     ep_address_attrs[:state] = address.state ? address.state.abbr : address.state_name
+    ep_address_attrs[:country] = address.country && address.country.iso3
     ep_address_attrs[:zip] = address.zipcode
     ep_address_attrs[:phone] = address.phone
 
