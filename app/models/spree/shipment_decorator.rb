@@ -1,4 +1,5 @@
 Spree::Shipment.class_eval do
+  unloadable
   state_machine.before_transition :to => :shipped, :do => :buy_easypost_rate
 
   has_one :easypost_shipment_response, class_name: 'Spree::EasypostShipmentResponse'
