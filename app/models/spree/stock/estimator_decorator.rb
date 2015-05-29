@@ -111,9 +111,9 @@ Spree::Stock::Estimator.class_eval do
   end
 
   def build_parcel(package)
-    total_weight = package.contents.sum do |item|
+    total_weight = package.order.weight ||= package.contents.sum do |item|
       item.quantity * item.variant.weight
-    end 
+    end
     parcel = ::EasyPost::Parcel.create(
       :weight => total_weight
     )
