@@ -19,7 +19,7 @@ Spree::Stock::Estimator.class_eval do
     to_address = process_address(order.ship_address)
     parcel = build_parcel(package)
     
-    shipment = build_shipment(from_address, to_address, parcel)
+    shipment = build_shipment(from_address, to_address, parcel, package)
     rates = shipment.rates#.sort_by { |r| r.rate.to_i }
     
     spree_shipping_rates = package.shipping_rates
@@ -139,12 +139,23 @@ Spree::Stock::Estimator.class_eval do
     )
   end
   
-  def build_shipment(from_address, to_address, parcel)
-    shipment = ::EasyPost::Shipment.create(
+  def build_shipment(from_address, to_address, parcel, package)
+    signature_required = package.order.signature_required
+    byebug
+    if signature_required
+      shipment = ::EasyPost::Shipment.create(
+        :to_address => to_address,
+        :from_address => from_address,
+        :parcel => parcel,
+        :delivery_confirmation => 'SIGNATURE'
+      )
+    else
+      shipment = ::EasyPost::Shipment.create(
       :to_address => to_address,
       :from_address => from_address,
       :parcel => parcel
     )
+    end
   end
 
 end
