@@ -48,7 +48,6 @@ Spree::Stock::Estimator.class_eval do
         end
       end
     end
-    #byebug
     #for all shipping rates, for which the corresponding rates were not found, use
     #the admin_name as the parcel size
     package.shipping_rates.each do |spree_shipping_rate|
@@ -114,9 +113,22 @@ Spree::Stock::Estimator.class_eval do
     total_weight = package.order.weight ||= package.contents.sum do |item|
       item.quantity * item.variant.weight
     end
-    parcel = ::EasyPost::Parcel.create(
-      :weight => total_weight
-    )
+    width = package.order.width
+    height = package.order.height
+    length = package.order.length
+    
+    unless width.nil? && height.nil? && length.nil?
+      parcel = ::EasyPost::Parcel.create(
+        :weight => total_weight,
+        :height => height,
+        :length => length,
+        :width => width
+      )
+    else
+      parcel = ::EasyPost::Parcel.create(
+        :weight => total_weight
+      )
+    end
   end
   def build_predefined_parcel(package, predefined_package_name)
     total_weight = package.contents.sum do |item|
