@@ -139,8 +139,8 @@ Spree::Stock::Estimator.class_eval do
     )
   end
   
-  def build_shipment(from_address, to_address, parcel, package)
-    signature_required = package.order.signature_required
+  def build_shipment(from_address, to_address, parcel, package=nil)
+    signature_required = package.order.signature_required unless package.nil?
     if signature_required
       shipment = ::EasyPost::Shipment.create(
         :to_address => to_address,
