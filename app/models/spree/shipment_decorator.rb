@@ -33,6 +33,9 @@ Spree::Shipment.class_eval do
     
     easypost_shipment.buy(rate)
     if easypost_shipment.tracking_code.present?
+      if self.order.insurance
+        easypost_shipment.insure(self.order.total)
+      end
       self.tracking = easypost_shipment.tracking_code
       self.create_easypost_shipment_response(buy_response: easypost_shipment.as_json)
     end
