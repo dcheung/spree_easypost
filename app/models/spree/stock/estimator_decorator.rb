@@ -6,7 +6,7 @@ Spree::Stock::Estimator.class_eval do
       package.shipping_rates = rates
       rates = shipping_rates_via_easypost(package, frontend_only)
 
-      choose_default_shipping_rate(rates)
+#      choose_default_shipping_rate(rates)
       sort_shipping_rates(rates)
     else
       []
