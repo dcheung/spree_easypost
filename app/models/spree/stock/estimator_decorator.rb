@@ -111,7 +111,7 @@ Spree::Stock::Estimator.class_eval do
 
   def build_parcel(package)
     total_weight = package.order.weight ||= package.contents.sum do |item|
-      item.quantity * item.variant.weight
+      item.quantity * item.variant.ship_weight
     end
     width = package.order.width
     height = package.order.height
@@ -132,7 +132,7 @@ Spree::Stock::Estimator.class_eval do
   end
   def build_predefined_parcel(package, predefined_package_name)
     total_weight = package.contents.sum do |item|
-      item.quantity * item.variant.weight
+      item.quantity * item.variant.ship_weight
     end
     parcel = ::EasyPost::Parcel.create(
      predefined_package: predefined_package_name,  weight: total_weight
