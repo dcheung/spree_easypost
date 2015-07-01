@@ -23,7 +23,7 @@ This goes into a new file called `config/initializers/easy_post.rb`:
 
 This extension hijacks `Spree::Stock::Estimator#shipping_rates` to calculate shipping rates for your orders. This call happens during the checkout process, once the order's address information has been provided.
 
-The extension also adds a callback to the "ship" event on the `Shipment` model, telling EasyPost which rate was selected and "buying" that rate.
+The extension compares the Spree shipping rates internal name with the easy post shipping rates, and calculates the corresponding prices for all matched carriers. It also adds a callback to the "ship" event on the `Shipment` model, telling EasyPost which rate was selected and "buying" that rate.
 
 ## Issues
 
