@@ -2,9 +2,9 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_easypost'
-  s.version     = '2.3.1'
-  s.summary     = 'TODO: Add gem summary here'
-  s.description = 'TODO: Add (optional) gem description here'
+  s.version     = '3.0.0'
+  s.summary     = 'Spree Easy Post'
+  s.description = 'Spree Easy Post'
   s.required_ruby_version = '>= 1.9.3'
 
    s.author    = 'Radar/Arkhitech'
